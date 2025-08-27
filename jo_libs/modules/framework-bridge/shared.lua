@@ -52,13 +52,18 @@ local supportedFrameworks = {
     folder = "rpx",
     resources = { "rpx-core" }
   },
-
   {
     id = "tpzcore",
     name = "TPZ-CORE Framework",
     folder = "tpzcore",
     resources = { "tpz_core" }
-  }
+  },
+  {
+    id = "gm",
+    name = "GM Core",
+    folder = "gm",
+    resources = { "gm_core" }
+  },
 }
 
 local function extractResourceData(str)

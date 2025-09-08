@@ -120,6 +120,13 @@ local categoryNotClothes = {
   neckerchiefs = true
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
+jo.component.data.clothesCategories = {}
+
+for i = 1, #jo.component.data.pedClothes do
+  local category = jo.component.data.pedClothes[i]
+  local hash = jo.component.getCategoryHash(category)
+  jo.component.data.clothesCategories[hash] = category
+end
 
 jo.component.data.categoryName = {}
 for i = 1, #jo.component.data.order do
@@ -364,7 +371,6 @@ local function GetMetaPedAssetTint(ped, index)
     Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt())
 end
 local function GetNumComponentsInPed(ped) return invokeNative(0x90403E8107B60E81, ped) or 0 end
-local function GetMetaPedType(ped) return invokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return invokeNative(0x5FF9A878C3D115B8, ...) end
 local function UpdateShopItemWearableState(ped, hash, state)
   return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
@@ -609,16 +615,18 @@ end
 -------------
 local function reapplyComponentStats(ped)
   for category, list in pairs(jo.component.data.wearableStates) do
-    local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
-    if isEquiped then
-      local state = Entity(ped).state["wearableState:" .. category] or "base"
-      local stateName = jo.component.getWearableStateNameFromHash(state)
-      if stateName ~= "base" and table.includes(list, stateName) then
-        local hash = GetShopItemComponentAtIndex(ped, index)
-        if jo.debug then
-          dprint("Reapply state of %s: %s (%d)", category, jo.component.getWearableStateNameFromHash(state), state)
+    if jo.component.isCategoryAClothes(category) then
+      local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
+      if isEquiped then
+        local state = Entity(ped).state["wearableState:" .. category] or "base"
+        local stateName = jo.component.getWearableStateNameFromHash(state)
+        if stateName ~= "base" and table.includes(list, stateName) then
+          local hash = GetShopItemComponentAtIndex(ped, index)
+          if jo.debug then
+            dprint("Reapply state of %s: %s (%d)", category, jo.component.getWearableStateNameFromHash(state), state)
+          end
+          UpdateShopItemWearableState(ped, hash, state)
         end
-        UpdateShopItemWearableState(ped, hash, state)
       end
     end
   end
@@ -829,7 +837,8 @@ end
 --- A function to remove all clothing components from a ped
 ---@param ped integer (The entity ID)
 function jo.component.removeAllClothes(ped)
-  for _, category in pairs(jo.component.data.pedClothes) do
+  for i = 1, #jo.component.data.pedClothes do
+    local category = jo.component.data.pedClothes[i]
     jo.component.remove(ped, category)
   end
 end
@@ -844,8 +853,8 @@ function jo.component.applyComponents(ped, components)
 
   jo.component.removeAllClothes(ped)
 
-  for i = 1, #jo.component.data.order do
-    local category = jo.component.data.order[i]
+  for i = 1, #jo.component.data.pedClothes do
+    local category = jo.component.data.pedClothes[i]
     if components[category] then
       jo.component.apply(ped, category, components[category])
     end
@@ -909,11 +918,11 @@ function jo.component.applySkin(ped, skin)
 
   local bodies_upper = skin.bodyUpperHash or
       jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
-  jo.component.apply(ped, "body_upper", bodies_upper)
+  jo.component.apply(ped, "bodies_upper", bodies_upper)
 
   local bodies_lower = skin.bodyLowerHash or
       jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
-  jo.component.apply(ped, "body_lower", bodies_lower)
+  jo.component.apply(ped, "bodies_lower", bodies_lower)
 
   dprint("apply outfit")
   if skin.bodyType then
@@ -1379,3 +1388,8 @@ end
 -------------
 -- END CONVERT HASH
 -------------
+
+function jo.component.isCategoryAClothes(category)
+  category = jo.component.getCategoryHash(category)
+  return jo.component.data.clothesCategories[category] ~= nil
+end

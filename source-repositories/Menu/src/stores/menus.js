@@ -538,7 +538,8 @@ export const useMenuStore = defineStore('menus', {
         index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
         slider = item.sliders[index]
       } else {
-        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
+        index = Math.min(index, item.sliders.length - 1)
+        slider = item.sliders[index]
       }
       if (!slider) return;
 
@@ -565,7 +566,8 @@ export const useMenuStore = defineStore('menus', {
         index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
         slider = item.sliders[index]
       } else {
-        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
+        index = Math.min(index, item.sliders.length - 1)
+        slider = item.sliders[index]
       }
       if (!slider) return;
 
@@ -597,6 +599,7 @@ export const useMenuStore = defineStore('menus', {
           current2 = Math.min(Math.max(current2, values[1].min), values[1].max)
           if (current2 != values[1].current) {
             values[1].current = current2
+            this.addDataToSend(["sliders", data.index, "values", 1, "current"], values[1].current)
             change = true
           }
         }
@@ -605,15 +608,16 @@ export const useMenuStore = defineStore('menus', {
         current = Math.min(Math.max(current, values[0].min), values[0].max)
         if (current != values[0].current) {
           values[0].current = current
+          this.addDataToSend(["sliders", data.index, "values", 0, "current"], values[0].current)
           change = true
         }
         if (!change) return
       } else {
         if (slider.current == data.value) return
         slider.current = data.value
+        this.addDataToSend(["sliders", data.index, "current"], slider.current)
       }
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", data.index, "current"], slider.current)
       this.updatePreview()
     },
     gridLeft(index) {
@@ -628,7 +632,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.max(values[0].min, values[0].current - (values[0].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 1, "current"], values[0].current)
+      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
       this.updatePreview()
     },
     gridRight(index) {
@@ -643,7 +647,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.min(values[0].max, values[0].current + (values[0].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 2, "current"], values[0].current)
+      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
       this.updatePreview()
     },
     gridUp(index) {
@@ -667,7 +671,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[1].current = Math.min(values[1].max, values[1].current + (values[1].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 2, "current"], values[1].current)
+      this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
       this.updatePreview()
     },
     updatePreview() {
@@ -698,10 +702,21 @@ export const useMenuStore = defineStore('menus', {
           }
           switch (element.action) {
             case "delete":
-              delete current[lastKey]
+              if (Array.isArray(current)) {
+                current.splice(lastKey, 1)
+              } else {
+                delete current[lastKey]
+              }
               break;
             case "update":
               current[lastKey] = element.value
+              if (lastKey == "currentIndex") {
+                current.currentIndex = current.items.findIndex(item => item.index == element.value)
+                current.currentIndex = Math.max(current.currentIndex, 0)
+                current.currentIndex = Math.min(current.currentIndex, current.items.length - 1)
+                if (data.menu == this.currentMenuId)
+                  this.updatePreview()
+              }
               break;
           }
         });

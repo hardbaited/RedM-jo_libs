@@ -1,3 +1,5 @@
+import PreviewSlider from "./components/layout/PreviewSlider.vue"
+
 export default {}
 
 let menu = {
@@ -14,61 +16,58 @@ let menu = {
       icon: "female",
       iconSize: "small",
       priceTitle: "Price",
-      price: [
-        { item: 'apple', quantity: 1, label: "Trainer Licence", image: "https://femga.com/images/samples/ui_textures_no_bg/inventory_items/document_business_card_rock_carvings.png" },
-        { item: 'apple', quantity: 1, label: "Trainer Licence", image: "https://femga.com/images/samples/ui_textures_no_bg/inventory_items/document_business_card_rock_carvings.png" },
-        { money: 1 },
-        { gold: 10 },
-      ],
+      previewSlider: true,
+      price:
+        [{ item: "horseLicense", keep: true }],
       // footer: "The footer",
       child: "test",
       quantity: 5,
       quantityCircleClass: 'fgold',
       iconClass: 'fgold',
       sliders: [
-        {
-          type: "switch",
-          values: [{ label: "good" }, { label: "bad" }]
-        },
-        {
-          type: 'grid',
-          values: [{ current: 1, min: -10, max: 10 }]
-        },
-        {
-          type: 'sprite',
-          forceDisplay: true,
-          values: [
-            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
-            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
-            { rgb: 'red' },
-            { rgb: ['red', 'blue', "green"] },
-            { sprite: 'tints/metal_engraving_2' }
-          ],
-          description: 'My item description<br>Second line',
-        },
+        // {
+        //   type: "switch",
+        //   values: [{ label: "good" }, { label: "bad" }]
+        // },
+        // {
+        //   type: 'grid',
+        //   values: [{ current: 1, min: -10, max: 10 }]
+        // },
         {
           type: 'sprite',
           forceDisplay: true,
           values: [
-            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
-            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
-            { rgb: 'red' },
-            { rgb: ['red', 'blue', "green"] },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
+            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' }, icon: 'lock', iconClass: 'fred' },
+            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' }, icon: 'star', iconClass: 'fgold' },
+            { rgb: 'red', icon: 'star', iconClass: 'fgold' },
+            { rgb: ['red', 'blue', "green"], icon: 'star', iconClass: 'fgold' },
+            { sprite: 'tints/metal_engraving_2', icon: 'star', iconClass: 'fgold' }
           ],
           description: 'My item description<br>Second line',
-        }
+        },
+        // {
+        //   type: 'sprite',
+        //   forceDisplay: true,
+        //   values: [
+        //     { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
+        //     { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
+        //     { rgb: 'red' },
+        //     { rgb: ['red', 'blue', "green"] },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //   ],
+        //   description: 'My item description<br>Second line',
+        // }
       ]
     }, {
       title: 'This is the title',
@@ -78,11 +77,11 @@ let menu = {
     },
     {
       title: 'This is the title',
-      price: { money: 4 },
+      price: { money: 0 },
     },
     {
       title: 'This is the title',
-      price: { gold: 4 },
+      price: 0,
     },
     {
       title: 'This is the title',
@@ -103,16 +102,13 @@ if (import.meta.env.DEV) {
 
   let newValues = [
     {
-      keys: ["items", 1, "sliders", 1, "title"],
-      value: "New title"
-    },
-    {
-      keys: ["items", 1, "sliders", 1, "description"],
-      value: "New description"
-    },
-    {
-      keys: ["items", 1, "price"],
+      keys: ["items", 1],
       action: "delete"
+    },
+    {
+      keys: ["currentIndex"],
+      action: "update",
+      value: 1
     }
   ]
 

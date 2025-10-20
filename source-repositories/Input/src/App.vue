@@ -13,13 +13,16 @@
 
             <input v-if="entry.type == 'text'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="text" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" v-model="entry.value" />
 
-            <label v-if="entry.type == 'label'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" v-html="entry.value" />
+            <label v-if="entry.type == 'label'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" v-html="entry.value" :for="entry.for" />
 
             <input v-if="entry.type == 'number'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="number" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" :min="entry.min" :max="entry.max" :step="entry.step" :value="entry.value" v-model="entry.value" />
 
             <VueDatePicker v-if="entry.type == 'date'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :dark="true" position="left" :start-date="new Date('01/01/' + entry.yearRange[0])" :enable-time-picker="false" :placeholder="entry.placeholder" :year-range="entry.yearRange" v-model="entry.value" :format="entry.format" :model-type="entry.format" auto-apply prevent-min-max-navigation />
 
             <button v-if="entry.type == 'action'" :style="style(entry)" :class="['action', entry.class]" v-html="entry.value" @click="click(entry.id, entry.ignoreRequired)" />
+
+            <Select v-if="entry.type == 'select'" v-model="entry.value" :options="entry.options" optionLabel="label" :placeholder="entry.placeholder" :style="style(entry)" :class="[entry.class, { error: entry.error }]" fluid />
+
           </template>
         </div>
       </template>
@@ -30,6 +33,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, onUpdated } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker';
+import Select from 'primevue/select';
 
 const notif = ref({})
 const visible = ref(false)
@@ -38,7 +42,7 @@ let firstInput = null
 let ignoreEnter = false
 let lastMessageDate = 0
 
-const typeWithResult = ['text', 'number', 'date']
+const typeWithResult = ['text', 'number', 'date', 'select']
 
 function isDev() {
   return import.meta.env.DEV
@@ -237,7 +241,7 @@ onUnmounted(() => {
 }
 
 .container {
-  text-align: center;
+  // text-align: center;
   background-color: var(--color-background-dark);
   width: 54vw;
   height: fit-content;
@@ -256,6 +260,7 @@ onUnmounted(() => {
 }
 
 .title {
+  text-align: center;
   font-weight: bold;
   background-color: var(--color-background-grey);
   flex: 1;
@@ -264,7 +269,7 @@ onUnmounted(() => {
 }
 
 input {
-  padding: 0.625em 1.1em;
+  padding: var(--padding-input-Y) var(--padding-input-X);
   border: none;
   color: white;
   background-color: var(--color-background-grey);

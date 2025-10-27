@@ -43,7 +43,6 @@ local disabledKeys = {
   `INPUT_GAME_MENU_CANCEL`,
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
-local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
   if not item or not item.sliders then return end
@@ -314,9 +313,6 @@ function MenuClass:addItem(index, item)
       end
     end
   end
-  if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
-    menusNeedRefresh[self.id] = true
-  end
 
   local menu = self
 
@@ -387,6 +383,10 @@ end
 ---@param keys string|table (The list of property name to access to the value)
 function MenuClass:deleteValue(keys)
   if type(keys) ~= "table" then keys = { keys } end
+  if (#keys == 2 and keys[1] == "items") then
+    self:deleteItem(keys[2])
+    return
+  end
   table.insert(self.updatedValues, {
     keys = keys,
     action = "delete"
@@ -400,6 +400,21 @@ function MenuClass:deleteItem(index)
     keys = { "items", index },
     action = "delete"
   })
+  for i = index, #self.items do
+    self.items[i].index = i
+    table.insert(self.updatedValues, {
+      action = "update",
+      keys = { "items", i, "index" },
+      value = i
+    })
+  end
+  if (jo.menu.isCurrentMenu(self.id)) and self.currentIndex == index then
+    table.insert(self.updatedValues, {
+      keys = { "currentIndex" },
+      action = "update",
+      value = index
+    })
+  end
 end
 
 
@@ -420,7 +435,6 @@ function MenuClass:refresh()
   if jo.menu.isCurrentMenu(self.id) then
     jo.menu.runRefreshEvents(false, true)
   end
-  menusNeedRefresh[self.id] = nil
 end
 
 --- Push the updated values to the NUI layer
@@ -940,9 +954,9 @@ end)
 ---@param ...? any (Additional arguments to pass to the event handler)
 function jo.menu.fireEvent(item, eventName, ...)
   if not item then return end
-  if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], currentData, ...) end
-  if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], currentData, ...) end
-  if item[eventName] then item[eventName](currentData, ...) end
+  if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], jo.menu.getCurrentData(), ...) end
+  if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], jo.menu.getCurrentData(), ...) end
+  if item[eventName] then item[eventName](jo.menu.getCurrentData(), ...) end
 end
 
 --- Fire an event across all menu levels (current menu and current item)
@@ -989,9 +1003,6 @@ function MenuClass:removeItem(index)
     for i = 1, #self.items do
       self.items[i].index = i
     end
-  end
-  if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
-    menusNeedRefresh[self.id] = true
   end
 end
 

@@ -674,30 +674,31 @@ export const useMenuStore = defineStore('menus', {
       this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
       this.updatePreview()
     },
-    updatePreview() {
-      if (this.cItem == undefined) return
+    updatePreview(forceItemEvent = false, forceMenuEvent = false) {
       API.post('updatePreview', {
         menu: this.currentMenuId,
         index: this.cItem.index,
         item: this.dataToSend,
+        forceItemEvent,
+        forceMenuEvent
       })
       this.dataToSend = {}
     },
     updateMenuValues(data) {
       if (!this.menus[data.menu]) return
       this.$patch((state) => {
+        let needRefresh = false
         data.updated.forEach(element => {
           let keys = element.keys
-          let lastKey = keys[keys.length - 1]
-          if (typeof lastKey == "number") { //Fixed the array start at 1 in LUA
-            lastKey -= 1
+          for (let i = 0; i < keys.length; i++) {
+            if (typeof keys[i] == "number") { //Fixed the array start at 1 in LUA
+              keys[i] -= 1
+            }
           }
+          let lastKey = keys[keys.length - 1]
           let current = state.menus[data.menu]
           for (let i = 0; i < keys.length - 1; i++) {
             let key = keys[i]
-            if (typeof key == "number") { //Fixed the array start at 1 in LUA
-              key -= 1
-            }
             current = current[key]
           }
           switch (element.action) {
@@ -712,14 +713,17 @@ export const useMenuStore = defineStore('menus', {
               current[lastKey] = element.value
               if (lastKey == "currentIndex") {
                 current.currentIndex = current.items.findIndex(item => item.index == element.value)
-                current.currentIndex = Math.max(current.currentIndex, 0)
                 current.currentIndex = Math.min(current.currentIndex, current.items.length - 1)
+                current.currentIndex = Math.max(current.currentIndex, 0)
                 if (data.menu == this.currentMenuId)
-                  this.updatePreview()
+                  needRefresh = true
               }
               break;
           }
         });
+        if (needRefresh) {
+          this.updatePreview(true)
+        }
       })
     },
   },

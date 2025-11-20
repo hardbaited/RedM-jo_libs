@@ -186,9 +186,11 @@ end
 ---@param model string (The model name of the entity to create)
 ---@param keepEntity? boolean (Whether to keep the entity after placement <br> default:true)
 ---@param networked? boolean (Whether the entity should be networked <br> default:false)
----@return integer,vector3,number (The created entity ID, final position, final heading)
-function jo.entity.createWithMouse(model, keepEntity, networked)
+---@param mouse? vector2 (Mouse coordinates normalized between 0-1 <br> default:`vec2(0.5, 0.5)`)
+---@return integer,vector3,number,boolean (The created entity ID, final position, final heading, is canceled)
+function jo.entity.createWithMouse(model, keepEntity, networked, mouse)
 	networked = networked or false
+	mouse = mouse or vec2(0.5, 0.5)
 	if keepEntity == nil then keepEntity = true end
 	model = GetHashFromString(model)
 	camFov = GetFinalRenderedCamFov()
@@ -199,6 +201,7 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 	local heading = 0
 	local entity = jo.entity.create(model, origin, heading, false)
 	local maxDistanceCreate = 10
+	local canceled = false
 
 	SetEntityCompletelyDisableCollision(entity, false, false)
 	SetEntityAlpha(entity, 200, false)
@@ -213,7 +216,7 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 		DisableControlAction(0, `INPUT_ATTACK`, true)
 		DisableControlAction(0, `INPUT_AIM`, true)
 
-		local hit, targetCoord = jo.utils.screenToWorld(maxDistanceCreate)
+		local hit, targetCoord = jo.utils.screenToWorld(maxDistanceCreate, nil, nil, mouse.x, mouse.y)
 		origin = GetEntityCoords(jo.me)
 
 		if hit and #(targetCoord - origin) <= maxDistanceCreate and #(previousCoord - targetCoord) > 0.025 then
@@ -235,14 +238,19 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 		end
 
 		if jo.prompt.isCompleted(groupPrompt, "INPUT_CONTEXT_LT") then
-			previousCoord = false
+			canceled = true
 			break
 		end
 		Wait(0)
 	end
-	jo.prompt.deleteGroup(groupPrompt)
 
+	jo.prompt.deleteGroup(groupPrompt)
 	jo.entity.delete(entity)
+
+	if canceled then
+		return false
+	end
+
 	if keepEntity then
 		entity = jo.entity.create(model, previousCoord, heading, networked)
 	end

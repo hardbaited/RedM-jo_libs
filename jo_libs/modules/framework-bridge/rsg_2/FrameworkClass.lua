@@ -16,6 +16,10 @@ jo.framework.inv = Inventory
 -------------
 
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   local isAdded = RSGCore.Functions.AddItem(item, nil)
   if isAdded then
     return eprint(item .. " < item does not exist in the core configuration")
@@ -95,7 +99,12 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
         end
       end
     else
-      return true
+      if data.amount >= amount then
+        if remove then
+          Inventory:RemoveItem(source, item, amount, data.slot)
+        end
+        return true
+      end
     end
   end
 

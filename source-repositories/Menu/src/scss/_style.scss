@@ -42,15 +42,14 @@ body {
 }
 
 .hapna {
-  font-family: 'Hapna';
+  font-family: "Hapna";
   font-weight: 500;
   word-spacing: -0.185vh;
 }
 
 .crock {
-  font-family: 'Crock';
+  font-family: "Crock";
 }
-
 
 .fred {
   filter: brightness(0.5) sepia(1) saturate(10000%) !important;
@@ -128,7 +127,7 @@ body {
       height: 100%;
       top: 0;
       left: 0;
-      background-image: url('/assets/images/background.png');
+      background-image: url("/assets/images/background.png");
       filter: invert(100%);
       background-repeat: no-repeat;
       background-size: 100% 100%;
@@ -137,7 +136,7 @@ body {
 }
 
 header {
-  background: url('/assets/images/menu_header.png');
+  background: url("/assets/images/menu_header.png");
   background-size: 100% 100%;
   width: 100%;
   height: 10vh;
@@ -197,14 +196,14 @@ main {
 
     .left,
     .right {
-      background-image: url('/assets/images/menu/scroller_right_top.png');
+      background-image: url("/assets/images/menu/scroller_right_top.png");
     }
 
     .center {
-      background-image: url('/assets/images/menu/scroller_line_up.png');
+      background-image: url("/assets/images/menu/scroller_line_up.png");
 
       &.active {
-        background-image: url('/assets/images/menu/scroller_arrow_top.png');
+        background-image: url("/assets/images/menu/scroller_arrow_top.png");
       }
     }
   }
@@ -214,14 +213,14 @@ main {
 
     .left,
     .right {
-      background-image: url('/assets/images/menu/scroller_right_bottom.png');
+      background-image: url("/assets/images/menu/scroller_right_bottom.png");
     }
 
     .center {
-      background-image: url('/assets/images/menu/scroller_line_down.png');
+      background-image: url("/assets/images/menu/scroller_line_down.png");
 
       &.active {
-        background-image: url('/assets/images/menu/scroller_arrow_bottom.png');
+        background-image: url("/assets/images/menu/scroller_arrow_bottom.png");
       }
     }
   }
@@ -284,7 +283,7 @@ main {
   }
 
   .text {
-    font-family: 'Hapna';
+    font-family: "Hapna";
     font-weight: 500;
     font-size: 1.1em;
   }
@@ -377,7 +376,6 @@ main {
     position: absolute;
     bottom: 0;
     transform: translateY(100%);
-
   }
 }
 
@@ -387,12 +385,11 @@ main {
   justify-content: flex-start;
   margin-top: 0.5vh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   height: 5.1vh;
 
   &.center {
     justify-content: center;
-
   }
 
   .sprite {
@@ -404,15 +401,15 @@ main {
     min-width: 5vh;
     max-width: 5vh;
 
-    &:before {
-      content: '';
+    &:not(.hidden):before {
+      content: "";
       display: block;
       position: absolute;
       top: var(--sprite-padding);
       left: var(--sprite-padding);
       bottom: var(--sprite-padding);
       right: var(--sprite-padding);
-      background-image: url('/assets/images/tints/swatch_box.png');
+      background-image: url("/assets/images/tints/swatch_box.png");
       background-size: 100%;
       background-repeat: no-repeat;
       background-position: center;
@@ -438,14 +435,14 @@ main {
 
   .current {
     &::after {
-      content: '';
+      content: "";
       display: block;
       position: absolute;
       top: 0.2vh;
       left: 0;
       bottom: 0.093vh;
       right: 0;
-      background-image: url('/assets/images/menu/selection_box_square.png');
+      background-image: url("/assets/images/menu/selection_box_square.png");
       background-size: 100%;
       background-repeat: no-repeat;
       background-position: center;
@@ -459,7 +456,6 @@ main {
   }
 }
 
-
 .item.disabled .colorCustom {
   opacity: 0.2;
 }
@@ -469,7 +465,7 @@ main {
   display: block;
   width: 100%;
   height: 0.37vh;
-  background-image: url('/assets/images/menu/divider_line.png');
+  background-image: url("/assets/images/menu/divider_line.png");
   background-size: 100% 100%;
 }
 
@@ -505,12 +501,12 @@ main {
       justify-content: flex-end;
 
       .stat-bar {
-        content: '';
+        content: "";
         width: 1.85vh;
         height: 0.93vh;
-        background-image: url('/assets/images/menu/scoretimer_centre_bg.png');
+        background-image: url("/assets/images/menu/scoretimer_centre_bg.png");
         background-size: 100% 100%;
-        opacity: 0.20;
+        opacity: 0.2;
 
         &.active {
           opacity: 1;
@@ -566,7 +562,7 @@ main {
   transition: all var(--transition-duration) ease;
 
   .container {
-    -webkit-mask-image: url('/assets/images/background_mask.png');
+    -webkit-mask-image: url("/assets/images/background_mask.png");
   }
 }
 
@@ -580,14 +576,14 @@ main {
 }
 
 .v-leave-active .container {
-  transition: -webkit-mask-position-y var(--transition-speed2) cubic-bezier(.5, 0, 1, .5) var(--delay-leave);
+  transition: -webkit-mask-position-y var(--transition-speed2) cubic-bezier(0.5, 0, 1, 0.5) var(--delay-leave);
   -webkit-mask-position-y: -130vh;
 }
 
 .smudge {
   display: none;
-  content: '';
-  background-image: url('/assets/images/background_smudge.png');
+  content: "";
+  background-image: url("/assets/images/background_smudge.png");
   height: 100%;
   width: 100%;
   background-size: 100% 100%;
@@ -599,7 +595,7 @@ main {
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 100% 120%;
   -webkit-mask-position-y: 18.5vh;
-  transition: all var(--transition-speed2) cubic-bezier(.9, .01, 1, .5) var(--delay-leave);
+  transition: all var(--transition-speed2) cubic-bezier(0.9, 0.01, 1, 0.5) var(--delay-leave);
 }
 
 .v-leave-active .smudge {
@@ -671,7 +667,7 @@ main {
   .grid {
     width: 100%;
     height: 3.5vh;
-    background-image: url('/assets/images/menu/grid.png');
+    background-image: url("/assets/images/menu/grid.png");
     background-size: cover;
     position: relative;
 
@@ -682,7 +678,7 @@ main {
       transform: translate(-50%, -50%);
       width: 1.85vh;
       height: 1.85vh;
-      background-image: url('/assets/images/menu/marker.png');
+      background-image: url("/assets/images/menu/marker.png");
       background-size: 2.315vh;
       background-repeat: no-repeat;
       background-position: center;

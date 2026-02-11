@@ -14,7 +14,7 @@ InvokeNative = Citizen.InvokeNative
 
 local resourceName = GetCurrentResourceName()
 local jo_libs = "jo_libs"
-local modules = { "table", "print", "file", "trigger-event" }
+local modules = { "table", "print", "file", "math", "trigger-event" }
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
@@ -55,7 +55,7 @@ end
 function GetHashFromString(value)
   if type(value) == "string" then
     local number = tonumber(value)
-    if number then return number end
+    if number then return math.toSigned(number) end
     return joaat(value)
   end
   return value
@@ -396,7 +396,7 @@ local function createExport(name, cb)
 end
 
 --Sort module by priority
-local priorityModules = { table = 1, print = 2, file = 3, hook = 4 }
+local priorityModules = { table = 1, print = 2, file = 3, math = 4, hook = 5 }
 table.sort(modules, function(a, b)
   local prioA = priorityModules[a]
   local prioB = priorityModules[b]
@@ -407,6 +407,48 @@ table.sort(modules, function(a, b)
   if prioB then return false end
   return a < b
 end)
+-------------
+-- SYNC STARTS
+-------------
+if resourceName == "jo_libs" then
+  local resourceStarted = {}
+
+  AddEventHandler("jo_libs:resourceStarted", function(resource)
+    log("Resource " .. resource .. " started")
+    resourceStarted[resource] = true
+    TriggerEvent("jo_libs:onResourceStart", resource)
+  end)
+
+  AddEventHandler("onResourceStop", function(resourceName)
+    log("Resource " .. resourceName .. " stopped")
+    resourceStarted[resourceName] = nil
+  end)
+
+  exports("isResourceStarted", function(resource)
+    return resourceStarted[resource] == true
+  end)
+end
+
+local onReadyActions = {}
+function jo.onResourceStart(resource, cb)
+  jo.waitLibLoading()
+  onReadyActions[resource] = onReadyActions[resource] or {}
+  table.insert(onReadyActions[resource], cb)
+  local isStarted = exports.jo_libs:isResourceStarted(resource)
+  if isStarted then
+    CreateThreadNow(cb)
+  end
+end
+
+AddEventHandler("jo_libs:onResourceStart", function(resource)
+  if not onReadyActions[resource] then return end
+  for i = 1, #onReadyActions[resource] do
+    CreateThreadNow(onReadyActions[resource][i])
+  end
+end)
+
+
+
 -------------
 -- LOAD REQUIRED MODULES
 -------------
@@ -424,3 +466,6 @@ for i = 1, #modules do
   end
 end
 jo.libLoaded = true
+jo.ready(function()
+  TriggerEvent("jo_libs:resourceStarted", resourceName)
+end)

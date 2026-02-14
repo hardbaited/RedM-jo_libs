@@ -223,6 +223,13 @@ local jo = setmetatable({
   __call = noFunction
 })
 
+function jo.createModule(name)
+  if not rawget(jo, name) then
+    rawset(jo, name, {})
+  end
+  return rawget(jo, name)
+end
+
 function jo.waitLibLoading()
   while not jo.libLoaded do
     Wait(0)
@@ -414,13 +421,11 @@ if resourceName == "jo_libs" then
   local resourceStarted = {}
 
   AddEventHandler("jo_libs:resourceStarted", function(resource)
-    log("Resource " .. resource .. " started")
     resourceStarted[resource] = true
     TriggerEvent("jo_libs:onResourceStart", resource)
   end)
 
   AddEventHandler("onResourceStop", function(resourceName)
-    log("Resource " .. resourceName .. " stopped")
     resourceStarted[resourceName] = nil
   end)
 

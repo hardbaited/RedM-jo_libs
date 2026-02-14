@@ -1,16 +1,15 @@
 jo.require("hook")
 
 local dict = {}
+local initialized = false
+local currentLocale = GetConvar("jo_libs:i18n:locale", "en")
 
-jo.i18n = {
-  locale = GetConvar("jo_libs:i18n:locale", "en"), -- Default locale
-  initialized = false
-}
+jo.createModule("i18n")
 
 if jo.isClientSide() then
   local playerLocale = GetExternalKvpString("jo_libs", "locale")
   if playerLocale and playerLocale ~= "" then
-    jo.i18n.locale = playerLocale
+    currentLocale = playerLocale
   end
 end
 
@@ -39,7 +38,7 @@ end
 --- Returns the current locale
 ---@return string (The current locale)
 function jo.i18n.getLocale()
-  return jo.i18n.locale
+  return currentLocale
 end
 
 --- Load a locale
@@ -54,25 +53,25 @@ end
 
 --- Initialize the i18n module
 function jo.i18n.init()
-  jo.i18n.loadLocale(jo.i18n.locale)
-  jo.i18n.initialized = true
+  jo.i18n.loadLocale(currentLocale)
+  initialized = true
 end
 
 --- Set the current locale
 ---@param locale string (The locale to set)
 function jo.i18n.setLocale(locale)
-  jo.i18n.locale = locale
-  jo.i18n.loadLocale(jo.i18n.locale)
+  currentLocale = locale
+  jo.i18n.loadLocale(currentLocale)
   jo.hook.doActions("jo_i18n_locale_changed", locale)
 end
 
 --- Register a callback to be called when the locale changes
 ---@param callback function (The callback to register)
 ---@param priority number (The priority of the callback)
-function jo.i18n.onLocaleChanged(callback, priority)
-  jo.hook.registerAction("jo_i18n_locale_changed", callback, priority)
+function jo.i18n.onLocaleChange(callback, priority)
+  jo.hook.registerAction("jo_i18n_locale_change", callback, priority)
 end
-exports("onLocaleChanged", jo.i18n.onLocaleChanged)
+exports("onLocaleChange", jo.i18n.onLocaleChange)
 
 --- Find missing keys in a locale
 ---@param locale string (The locale to check)
@@ -107,7 +106,7 @@ exports("addEntries", jo.i18n.addEntries)
 --- Get all entries
 ---@return table (The entries)
 function jo.i18n.getEntries()
-  if not jo.i18n.initialized then
+  if not initialized then
     jo.i18n.init()
   end
   return dict
@@ -118,7 +117,7 @@ exports("getEntries", jo.i18n.getEntries)
 ---@param key string (The key to translate)
 ---@return string (The translated key)
 function jo.i18n.__(key)
-  if not jo.i18n.initialized then
+  if not initialized then
     jo.i18n.init()
   end
   return dict[key] or ("#%s"):format(key)

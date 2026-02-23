@@ -573,6 +573,7 @@ end
 --- data.numberOnLine? integer (Only for tile menu, Maximum number of items visibles at the same time <br> default : `4`)
 --- data.numberLineOnScreen? integer (Only for tile menu, Maximum number of lines visibles at the same time <br> default : `6`)
 --- data.distanceToClose float (Distance at which the menu will self close if the player is moving away <br> default: `false` )
+--- data.displayBackButton boolean (Whether to display the back button <br> default: `false` )
 --- data.onEnter? function (Fired when the menu is opened)
 --- data.onBack? function (Fired when the backspace/Escape is pressed)
 --- data.onExit? function (Fired when the menu is exited)

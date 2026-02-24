@@ -131,7 +131,7 @@ local categoryNotClothes = {
   bodies_lower = true,
   bodies_upper = true,
   eyes = true,
-  neckerchiefs = true
+  -- neckerchiefs = true
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
 jo.component.data.clothesCategories = {}

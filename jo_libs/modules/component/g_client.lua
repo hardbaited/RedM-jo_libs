@@ -1034,8 +1034,3 @@ end
 -------------
 -- END CONVERT HASH
 -------------
-
-function jo.component.isCategoryAClothes(category)
-  category = jo.component.getCategoryHash(category)
-  return jo.component.data.clothesCategories[category] ~= nil
-end

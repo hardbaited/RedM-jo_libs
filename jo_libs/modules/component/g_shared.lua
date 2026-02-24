@@ -495,6 +495,11 @@ function jo.component.getTeethFromIndex(ped, index)
   return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
 end
 
+function jo.component.isCategoryAClothes(category)
+  category = jo.component.getCategoryHash(category)
+  return jo.component.data.clothesCategories[category] ~= nil
+end
+
 -------------
 -- END FUNCTIONS
 -------------

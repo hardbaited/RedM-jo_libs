@@ -38,10 +38,10 @@ let menu = {
           values: [
             {
               palette: {
-                tint0: 1,
-                tint1: 20,
-                tint2: 30,
-                palette: "tint_generic_clean",
+                tint0: 23,
+                tint1: 35,
+                tint2: 42,
+                palette: "metaped_tint_makeup",
               },
               icon: "lock",
               iconClass: "fred",
@@ -736,9 +736,18 @@ let menu = {
     {
       title: "This is the title",
       icon: "male",
-      price: 4,
       description: "test",
       textRight: "The text right",
+      sliders: [
+        {
+          type: "palette",
+          title: "tint",
+          tint: "tint_makeup",
+          //min: 12,
+          //max: 14,
+          //disabledTints: [33, 34, 35, 36, 37, 38],
+        },
+      ],
     },
     {
       icon: "outfit",

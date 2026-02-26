@@ -274,8 +274,7 @@ end
 -------------
 
 function jo.framework:canUseItem(source, item, amount, meta, remove)
-  local Player = self.UserClass:get(source)
-  local itemData = exports.gm_inventory:GetItem(Player, item, meta, true)
+  local itemData = exports.gm_inventory:GetItem(source, item, meta, true)
   if itemData and itemData.amount >= amount then
     if remove then
       exports.gm_inventory:RemoveItem(source, item, amount)
@@ -285,21 +284,13 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
 end
 
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
-  -- local isAdded = RSGCore.Functions.AddItem(item, nil)
-  -- if isAdded then
-  --   return eprint(item .. " < item does not exist in the core configuration")
-  -- end
-  -- RSGCore.Functions.CreateUseableItem(item, function(source, data)
-  --   callback(source, { metadata = data.info })
-  --   if closeAfterUsed then
-  --     TriggerClientEvent(string.lower(self:get()) .. "-inventory:client:closeinv", source)
-  --   end
-  -- end)
+  exports.gm_core:CreateUseableItem(item, function(source, data)
+    callback(source, { metadata = data and data.metadata or data })
+  end)
 end
 
 function jo.framework:giveItem(source, item, quantity, meta)
-  local Player = self.UserClass:get(source)
-  return exports.gm_inventory:AddItem(Player, item, quantity, meta)
+  return exports.gm_inventory:AddItem(source, item, quantity, meta)
 end
 
 function jo.framework:createInventory(id, name, invConfig)
@@ -326,28 +317,24 @@ end
 
 function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   local waiter = promise.new()
-  MySQL.scalar("SELECT data FROM gm_inventory WHERE name = ?", { invId }, function(items)
-    items = UnJson(items)
+  MySQL.scalar("SELECT data FROM gm_inventory WHERE name = ?", { invId }, function(rawItems)
+    local items = UnJson(rawItems)
     if not items then items = {} end
     local slot = 1
-    repeat
-      local doesSlotAvailable = true
-      for _, item in pairs(items) do
-        if item.slot == slot then
-          slot = slot + 1
-          doesSlotAvailable = false
-          break
-        end
-      end
-      Wait(100)
-    until doesSlotAvailable
+    local usedSlots = {}
+    for _, entry in pairs(items) do
+      usedSlots[entry.slot] = true
+    end
+    while usedSlots[slot] do
+      slot = slot + 1
+    end
     items[#items + 1] = {
-      amount = 1,
+      amount = quantity,
       name = item,
       info = metadata,
       slot = slot
     }
-    MySQL.insert("INSERT INTO gm_inventory (name,data) VALUES (@name,@data) ON DUPLICATE KEY UPDATE items = @items", {
+    MySQL.insert("INSERT INTO gm_inventory (name,data) VALUES (@name,@data) ON DUPLICATE KEY UPDATE data = @data", {
       name = invId,
       data = json.encode(items)
     }, function()

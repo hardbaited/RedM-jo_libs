@@ -206,6 +206,8 @@ class API {
       metaped_tint_mpadv_deuteranopia: "metaped_tint_mpadv",
       metaped_tint_mpadv_protanopia: "metaped_tint_mpadv",
       metaped_tint_mpadv_tritanopia: "metaped_tint_mpadv",
+      ["no hash"]: "metaped_tint_generic_clean",
+      ["unknown"]: "metaped_tint_generic_clean",
     }
     return matches[palette] || palette
   }

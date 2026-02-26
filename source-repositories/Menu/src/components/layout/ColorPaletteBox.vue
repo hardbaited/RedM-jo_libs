@@ -1,18 +1,13 @@
 <template>
-    <div :class="['color-custom color-' + numberColor, props.color.style]" :key="keyUpdate" ref="boxParent">
-        <template v-if="tint.palette == 'rgb'">
-            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
-            <div class="border"></div>
-        </template>
-        <template v-else>
-            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
-            <div class="border"></div>
-        </template>
+    <div :class="['color-custom color-' + numberColor, props.color.style]" :key="keyUpdate">
+        <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
+        <div class="border"></div>
     </div>
 </template>
 
 <script setup>
-import { computed, inject, onMounted, ref, watch } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
+import { getPaletteColors } from '../../services/paletteLoader'
 const API = inject('API')
 const props = defineProps(['color'])
 const tint = computed(() => {
@@ -46,25 +41,6 @@ const tint = computed(() => {
 })
 
 const numberColor = computed(() => { return tint.value.tints.length })
-const url = computed(() => { return props.color.palette && `./assets/images/menu/${API.getPalette(props.color.palette)}.png` })
-
-const max = ref(1)
-function calculMax() {
-    if (!url.value)
-        return
-    const img = new Image();
-    img.src = url.value;
-    img.onload = function () {
-        max.value = img.naturalWidth - 1; // Largeur originale de l'image
-    };
-}
-
-onMounted(() => {
-    calculMax()
-})
-watch(url, () => {
-    calculMax()
-})
 
 const keyUpdate = computed(() => {
     let key = ""
@@ -76,18 +52,34 @@ const keyUpdate = computed(() => {
     return key
 })
 
+const paletteColors = ref([])
+const resolvedPaletteName = computed(() => {
+    if (tint.value.palette == 'rgb') return ''
+    return API.getPalette(tint.value.palette)
+})
+
+let paletteRequestId = 0
+watch(resolvedPaletteName, async (paletteName) => {
+    const requestId = ++paletteRequestId
+    if (!paletteName) {
+        paletteColors.value = []
+        return
+    }
+
+    const colors = await getPaletteColors(paletteName)
+    if (requestId !== paletteRequestId) return
+    paletteColors.value = colors
+}, { immediate: true })
+
 function getStyleTint(index) {
     if (tint.value.palette == 'rgb')
         return {
             'background-color': tint.value.tints[index]
         }
 
-    let value = tint.value.tints[index]
-
-    let percent = Math.min((value / max.value) * 100, 100)
+    const value = Number(tint.value.tints[index])
     return {
-        backgroundImage: "url(" + url.value + ")",
-        backgroundPosition: percent + "% 0px"
+        'background-color': paletteColors.value?.[value] || '#000000'
     }
 }
 </script>

@@ -8,6 +8,7 @@ let menu = {
   // type: "tile",
   numberLineOnScreen: 3,
   subtitle: "The menu title",
+  displayBackButton: true,
   items: [
     {
       title: "This is the title",
@@ -37,10 +38,10 @@ let menu = {
           values: [
             {
               palette: {
-                tint0: 1,
-                tint1: 20,
-                tint2: 30,
-                palette: "tint_generic_clean",
+                tint0: 23,
+                tint1: 35,
+                tint2: 42,
+                palette: "metaped_tint_makeup",
               },
               icon: "lock",
               iconClass: "fred",
@@ -735,9 +736,18 @@ let menu = {
     {
       title: "This is the title",
       icon: "male",
-      price: 4,
       description: "test",
       textRight: "The text right",
+      sliders: [
+        {
+          type: "palette",
+          title: "tint",
+          tint: "tint_makeup",
+          //min: 12,
+          //max: 14,
+          //disabledTints: [33, 34, 35, 36, 37, 38],
+        },
+      ],
     },
     {
       icon: "outfit",
@@ -892,36 +902,15 @@ if (import.meta.env.DEV) {
     },
   ];
 
-  // setTimeout(() => {
-  //   window.postMessage({
-  //     event: "updateMenuValues",
-  //     menu: "home",
-  //     updated: newValues,
-  //   })
-  // }, 2000);
-
-  // window.postMessage({
-  //   event: 'setCurrentIndex',
-  //   menu: 'home',
-  //   index: 5
-  // })
-
   setTimeout(function () {
     window.postMessage({
       event: "setCurrentMenu",
       menu: "home",
-      keepHistoric: true,
+      keepHistoric: false,
     });
     window.postMessage({
       event: "updateShow",
       show: true,
     });
   }, 200);
-
-  // setTimeout(() => {
-  //   window.postMessage({
-  //     event: "displayLoader",
-  //     show: true
-  //   })
-  // }, 3000);
 }

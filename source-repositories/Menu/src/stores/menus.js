@@ -199,6 +199,7 @@ class Menu {
   onBeforeEnter = false;
   price = false;
   priceTitle = false;
+  displayBackButton = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -276,6 +277,7 @@ class Menu {
       this.setOnBeforeEnter(data.onBeforeEnter);
     if (data.price !== undefined) this.setPrice(data.price);
     if (data.priceTitle !== undefined) this.setPriceTitle(data.priceTitle);
+    if (data.displayBackButton !== undefined) this.setDisplayBackButton(data.displayBackButton);
     this.refreshKey = Math.random();
   }
 
@@ -339,6 +341,10 @@ class Menu {
 
   setPriceTitle(title) {
     this.priceTitle = title;
+  }
+
+  setDisplayBackButton(value) {
+    this.displayBackButton = value;
   }
 }
 
@@ -603,8 +609,11 @@ export const useMenuStore = defineStore("menus", {
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current <= 0) return;
-        slider.current--;
+        const disabled = new Set(slider.disabledTints || [])
+        let next = slider.current - 1
+        while (next >= (slider.min || 0) && disabled.has(next)) next--
+        if (next < (slider.min || 0)) return;
+        slider.current = next;
       } else if (slider.type == "grid") {
         return this.gridLeft(index);
       } else {
@@ -634,8 +643,11 @@ export const useMenuStore = defineStore("menus", {
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current == slider.max) return;
-        slider.current++;
+        const disabled = new Set(slider.disabledTints || [])
+        let next = slider.current + 1
+        while (next <= slider.max && disabled.has(next)) next++
+        if (next > slider.max) return;
+        slider.current = next;
       } else if (slider.type == "grid") {
         return this.gridRight(index);
       } else {

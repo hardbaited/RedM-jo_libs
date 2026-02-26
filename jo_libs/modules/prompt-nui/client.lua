@@ -5,7 +5,7 @@ jo.require("raw-keys")
 local clockStart = GetGameTimer()
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
-    if clockStart == GetGameTimer() then Wait(500) end
+    if clockStart + 1000 >= GetGameTimer() then Wait(1000) end
     data.messageTargetUiName = "jo_prompt"
     NativeSendNUIMessage(data)
 end
@@ -47,10 +47,9 @@ RegisterNUICallback("keyCompleted", function(data, cb)
 end)
 
 RegisterNUICallback("keyUp", function(data, cb)
-    if nuiDriven then
-        local key = data.kkey:upper()
-        nuiDrivenCompletedKeys[key] = nil
-    end
+    local key = data.kkey:upper()
+    nuiDrivenCompletedKeys[key] = nil
+
     cb({ ok = "ok" })
 end)
 
@@ -67,6 +66,7 @@ end)
 local function listenKey(key, holdTime)
     jo.rawKeys.listen(key, function(isPressed)
         if isPressed then
+            if not currentGroupVisible then return end
             keysPressed[key] = GetGameTimer() + (holdTime or 0)
         else
             keysPressed[key] = nil
@@ -406,6 +406,8 @@ end
 function GroupClass:hide()
     currentGroupVisible = nil
     self.visible = false
+    nuiDrivenCompletedKeys = {}
+    keysPressed = {}
     SendNUIMessage({
         type = "setGroup",
         data = {
@@ -443,13 +445,36 @@ function jo.promptNui.createGroup(title, position)
 end
 
 --- Checks whether a specified key has been held for the required duration to trigger an action.<br>Optionally ensures that the key does not trigger repeatedly unless explicitly allowed.
---- @param key string (The key identifier to check.)
+--- @param group GroupClass|string (The prompt group to validate against. Retrocompatible: can be the key string.)
+--- @param key string|boolean|nil (The key identifier to check. Retrocompatible: can be `fireMultipleTimes`.)
 --- @param fireMultipleTimes? boolean|nil (If true, allows the key to trigger multiple times<br> defaults to `false`.)
 --- @return boolean (True if the key press is complete and valid, otherwise `false`.)
-function jo.promptNui.isCompleted(key, fireMultipleTimes)
+function jo.promptNui.isCompleted(group, key, fireMultipleTimes)
+    -- Retrocompat with old signature: isCompleted(key, fireMultipleTimes)
+    if type(key) ~= "string" then
+        fireMultipleTimes = key
+        key = group
+        group = nil
+    end
+
+    if type(key) ~= "string" then return false end
+
     fireMultipleTimes = fireMultipleTimes or false
     key = key:upper()
     if forcedHide then return false end
+
+    -- When a group is provided, only allow completion checks for the currently visible group.
+    if group then
+        if not currentGroupVisible then return false end
+
+        if type(group) == "table" then
+            if currentGroupVisible.id ~= group.id then return false end
+        elseif currentGroupVisible.id ~= group then
+            return false
+        end
+    end
+
+
 
 
     -- Check for NUI-driven completed keys when in NUI mode

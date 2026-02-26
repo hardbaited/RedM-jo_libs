@@ -166,6 +166,12 @@ function PromptClass:setVisible(visible)
     self:refreshNUI("visible")
 end
 
+--- Returns whether the prompt is currently visible.
+--- @return boolean (`true` if the prompt is visible, `false` otherwise)
+function PromptClass:isVisible()
+    return self.visible
+end
+
 --- Configures the keyboard keys for the prompt. Ensures that the keys are stored in a table, converting a single key to uppercase if needed.
 --- @param keyboardKeys table|string (A table of key strings or a single key string.)
 function PromptClass:setKeyboardKeys(keyboardKeys)

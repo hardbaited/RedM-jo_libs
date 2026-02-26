@@ -144,6 +144,12 @@ function PromptClass:setLabel(label)
     self:refreshNUI("label")
 end
 
+--- Get the label text for the prompt.
+--- @return string (The text label assigned to the prompt.)
+function PromptClass:getLabel()
+    return self.label
+end
+
 --- Enables or disables the prompt and updates its associated key listeners.
 --- @param enabled boolean (`true` to enable the prompt, `false` to disable it.)
 function PromptClass:setEnabled(enabled)

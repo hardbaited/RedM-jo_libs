@@ -11,6 +11,14 @@ let menu = {
   displayBackButton: true,
   items: [
     {
+      icon: "boots",
+      title: "This is the title",
+      statistics: [
+        { label: "test", type: "weapon-bar", value: [30, 100] },
+        { label: "blabla", value: "test" },
+      ],
+    },
+    {
       title: "This is the title",
       icon: "female",
       // iconSize: "small",

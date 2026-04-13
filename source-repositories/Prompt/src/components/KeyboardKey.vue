@@ -59,6 +59,7 @@ const scaleLeft = ref(0)
 let startPressed = 0
 let endPressed = 0
 let animationTimer = null
+let keyCompletedSent = false
 
 // Compute animation duration based on holdTime
 const animationDuration = computed(() => (props.holdTime ? `${props.holdTime}ms` : '1000ms'))
@@ -186,6 +187,7 @@ const calculateProgress = (elapsed, total) => {
 // Show key press state and start animation if applicable
 const showKeyDown = () => {
   if (props.disabled) return
+  if (isActive.value) return
   isActive.value = true
   if (props.holdTime) {
     // Clear any existing animation
@@ -214,15 +216,17 @@ const showKeyDown = () => {
         calculateProgress(durationMs.value, durationMs.value)
         clearInterval(animationTimer)
         animationTimer = null
-
-        resetAnimation()
-        isActive.value = false
         sendKeyCompletedFromNUI(false)
       } else {
         // Animation in progress
         calculateProgress(elapsed, durationMs.value)
       }
     }, 16) // ~60fps
+  } else {
+    if (!keyCompletedSent) {
+      keyCompletedSent = true
+      sendKeyCompletedFromNUI(false)
+    }
   }
 }
 
@@ -230,12 +234,21 @@ const showKeyDown = () => {
 const showKeyUp = () => {
   if (!isActive.value) return
   isActive.value = false
+  keyCompletedSent = false
 
   if (props.holdTime) {
     // Clear forward animation timer
+    const wasCompleted = !animationTimer
     if (animationTimer) {
       clearInterval(animationTimer)
       animationTimer = null
+    }
+
+    // If animation was already completed, reset instantly
+    if (wasCompleted) {
+      resetAnimation()
+      endPressed = 0
+      return
     }
 
     // Calculate progress so far

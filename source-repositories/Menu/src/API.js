@@ -199,6 +199,7 @@ class API {
       metaped_tint_combined_leather4: "metaped_tint_combined_leather",
       metaped_tint_combined_leather5: "metaped_tint_combined_leather",
       metaped_tint_combined_leather6: "metaped_tint_combined_leather",
+      metaped_tint_horse_leather_001: "metaped_tint_horse_leather",
       metaped_tint_si_template: "metaped_tint_combined_leather",
       metaped_tint_hair1: "metaped_tint_hair",
       metaped_tint_hair2: "metaped_tint_hair",
